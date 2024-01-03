@@ -1,2 +1,6 @@
+const { Device } = require("./device");
 const discovery = require("./discovery");
-discovery.initPingServerSocket();
+
+discovery.initPingServerSocket(device => {
+    console.log(Device.getAvailableDevices());
+});
