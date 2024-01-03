@@ -24,9 +24,10 @@ function initPingServerSocket(newDeviceCallback){
                 
                 let device = processDiscoveryMessage(data.toString(), socket);
 
-                // This function accepts a callback, that is called
+                // This function accepts a callback, that is called (if provided)
                 // when a new device is added, it could be by either ping or ackn
-                newDeviceCallback(device);
+                if(newDeviceCallback)
+                    newDeviceCallback(device);
             });
         }
     );
@@ -40,7 +41,7 @@ function initPingServerSocket(newDeviceCallback){
  * @param { net.Socket } socket Socket connection object that the message came from
  * @returns { Device } Device object created from the discovery message
  */
-function processDiscoveryMessage(msg, socket){
+function processDiscoveryMessage(data, socket){
     // Discovery message format: MSG_TYPE\rDEVICE_NAME\rDEVICE_TYPE\r\n
 
     let dataString = data.toString().trimEnd();
