@@ -1,7 +1,6 @@
 /**
  * Components:
  * - PingServerSocket -> listen for incomming ping
- * - ping -> send outgoing ping
  * - ackn -> send acknowledgement
  */
 
@@ -51,7 +50,8 @@ function processDiscoveryMessage(data, socket){
     console.info(`${messageType} ${deviceName} ${deviceType}`);
 
     // If its a valid ping message, then we need to send back an acknowledgement
-    sendAckn(socket);
+    if(messageType == "PING")
+        sendAckn(socket);
 
     const senderIp = socket.remoteAddress;
 
@@ -72,5 +72,8 @@ function sendAckn(socket){
 }
 
 module.exports = {
+    deviceName,
+    sendAckn,
+    processDiscoveryMessage,
     initPingServerSocket
 }
