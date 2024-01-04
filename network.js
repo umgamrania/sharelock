@@ -62,7 +62,13 @@ function ping(ip, callback){
  * Flood the network, send ping to all devices on network
  */
 function flood(callback){
-    let selectedIp = getLocalIp()[0];
+    let listOfIp = getLocalIp();
+
+    if(listOfIp.length === 0){
+        throw new Error("No local IP found");
+    }
+
+    let selectedIp = listOfIp[0];
     let [a, b, netId, c] = selectedIp.split(".");
 
     for(let i = 1; i < 255; i++){
