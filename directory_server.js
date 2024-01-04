@@ -100,8 +100,16 @@ function getDirectoryItems(pathToRead){
     // Looping over each item and preparing response,
     // while sorting items into files and folders
     items.forEach(item => {
-        let stat = fs.statSync(`${pathToRead}/${item}`);
+        let stat;
         let subtitle;
+
+        try{
+            stat = fs.statSync(`${pathToRead}/${item}`);
+        }
+        catch(_){
+            files.push(`${item}\rPermission required\rDawn of time`);
+            return;
+        }
 
         if(stat.isFile()) {
             subtitle = `${formatFileSize(stat.size)}`;
