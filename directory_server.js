@@ -82,7 +82,6 @@ function handleDirectoryClient(socket){
 }
 
 function getDirectoryItems(pathToRead){
-    console.log(`reading ${pathToRead}`);
     let isRootDir = pathToRead == "D:";
 
     let resposeBuffer = `200\r${isRootDir}\r${pathToRead}\r`;
@@ -92,7 +91,6 @@ function getDirectoryItems(pathToRead){
     // For some reason, passing just D: returns items of current directory
     // so, if path is only D:, adding a slash
     let items = fs.readdirSync(pathToRead + (isRootDir ? "/" : ""));
-    console.log(items);
 
     let files = [];
     let folders = [];
