@@ -35,7 +35,7 @@ function initDirectoryServer(){
  * @param {net.socket} socket 
  */
 function handleDirectoryClient(socket){
-    let path = "D:";
+    let path = "";
     socket.on('data', data => {
         let dataStr = data.toString().trimEnd();
         let [command, arg] = dataStr.split("\r");
@@ -51,14 +51,32 @@ function handleDirectoryClient(socket){
                 return;
             }
 
-            // If directory does not exist, 404 needs to be sent
-            if(!fs.existsSync(`${path}/${arg}`)){
-                socket.write("404\r\n");
-                return;
+            if(arg == "D Drive") {
+                path = "D:";
             }
+            else if(arg == "E Drive") {
+                path = "E:";
+            }
+            else {
+                // If directory does not exist, 404 needs to be sent
+                if(!fs.existsSync(`${path}/${arg}`)){
+                    socket.write("404\r\n");
+                    return;
+                }
 
-            // Add directory to path
-            path += `/${arg}`;
+                // Add directory to path
+                path += `/${arg}`;
+            }
+        }
+        else if(command == "back"){
+            if(path == "D:" || path == "E:"){
+                path = "";
+            } else {
+                // remove last 1 directories from path
+                let pathParts = path.split("/");
+                pathParts.pop();
+                path = pathParts.join("/");
+            }
         }
         else if(command == "backn"){
             // An arg (n) is required for backn
@@ -69,28 +87,39 @@ function handleDirectoryClient(socket){
 
             let n = parseInt(arg);
 
-            // remove last n directories from path
-            let pathParts = path.split("/");
-            pathParts.slice(0, pathParts.length - n);
-            path = pathParts.join("/");
+            // If at the root of any drive
+            if(path == "D:" || path == "E:"){
+                path = "";
+            } else {
+                // remove last n directories from path
+                let pathParts = path.split("/");
+                for(let i = 0; i < n; i++){
+                    pathParts.pop();
+                }
+                path = pathParts.join("/");
+            }
         }
         // Command processed
 
         // return the list of items of current directory
         socket.write(getDirectoryItems(path));
     });
+    socket.on('error', (e) => {
+        console.log("Error occured");
+        console.log(e);
+    });
 }
 
 function getDirectoryItems(pathToRead){
-    let isRootDir = pathToRead == "D:";
-
-    let resposeBuffer = `200\r${isRootDir}\r${pathToRead}\r`;
-
+    if(pathToRead == ""){
+        return `200\ttrue\t${pathToRead}\tD Drive\rLocal drive D\rSince the beginning\nE Drive\rLocal drive E\rRight after D\t\r\n\r\n`;
+    }
+    let isRootDir = false;
+    let resposeBuffer = `200\tfalse\t${pathToRead}\t`;
     // Getting all items in directory
-
-    // For some reason, passing just D: returns items of current directory
-    // so, if path is only D:, adding a slash
-    let items = fs.readdirSync(pathToRead + (isRootDir ? "/" : ""));
+    // For some reason passing just D: or E: returns items of current directory
+    // so, if path is only D:/E:, adding a slash
+    let items = fs.readdirSync(`${pathToRead}/`);
 
     let files = [];
     let folders = [];
