@@ -24,6 +24,7 @@ function initDirectoryServer(){
     let server = net.createServer(
         socket => {
             handleDirectoryClient(socket);
+            socket.on('error', (err) => {});
         }
     );
 

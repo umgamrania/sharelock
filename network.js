@@ -48,7 +48,7 @@ function ping(ip, callback){
         .on('data', data => {
             let dataString = data.toString().trimEnd();
             let device = discovery.processDiscoveryMessage(dataString, socket);
-            if(callback){
+            if(callback && ip != getLocalIp()[0]){
                 callback(device);
             }
         });
@@ -72,6 +72,7 @@ function flood(callback){
     let [a, b, netId, c] = selectedIp.split(".");
 
     for(let i = 1; i < 255; i++){
+        if(i == 8) continue;
         ping(`192.168.${netId}.${i}`, callback);
     }
 }
